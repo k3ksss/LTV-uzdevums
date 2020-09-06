@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="lv">
+
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <meta charset="UTF-8">
+    <title>Pieteiksanas forma</title>
+    <h1> Pieteikšanās Forma</h1>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td>vards:</td>
+            <td><input id="name" type="text" name="name"></td>
+        </tr>
+        <tr>
+            <td>uzvards:</td>
+            <td><input id="surname" type="text" name="surname"></td>
+        </tr>
+        <tr>
+            <td>dzimsanas gads:</td>
+            <td><input type="date" id="birthday" name="dzimsanas gads" value="2020-09-05"><br></td>
+        </tr>
+        <tr>
+            <td>pievieno bildi(jpg,png)</td>
+            <td><input type="file" id="myFile" name="filename" accept=".png, .jpg">
+        </tr>
+    </table>
+    <input type="submit" value="apstirpinat" onclick="return validation()">
+
+    <script>
+        function validation() {
+            if (checkIfNameSurnameExists()) {
+                if (checkAge()) {
+                    if (checkImage()) {
+                        saveAsJSON();
+                        return true;
+                    } else {
+                        alert("Lūdzu pievienojiet attēlu!");
+                        return false;
+                    }
+                } else {
+                    alert("Jums nav 18 gadu!");
+                    return false;
+                }
+            } else {
+                alert("Ievadiet vārdu/uzvārdu!");
+                return false;
+            }
+        }
+
+        function checkAge() {
+            var birthday = document.getElementById("birthday").valueAsDate;
+            var years = new Date(new Date() - new Date(birthday)).getFullYear() - 1970;
+            if (years >= 18) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function checkIfNameSurnameExists() {
+            var name = document.getElementById("name").value;
+            var surname = document.getElementById("surname").value;
+            if (name == "" || surname == "") {
+                return false;
+            } else {
+                return true;
+            }
+        }
+		function checkImage() {
+            if (document.getElementById('myFile').value !== '') {
+               var ext = document.getElementById('myFile').value.split('.').pop().toLowerCase();
+                if (ext == "jpg" || ext == "png") {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        
+        
+
+        function saveAsJSON() {
+            var name = document.getElementById("name").value;
+            var surname = document.getElementById("surname").value;
+            var birthday = document.getElementById("birthday").valueAsDate;
+            var reference = document.getElementById("myFile").value;
+
+            var data = encode(JSON.stringify({
+                Vards: name,
+                Uzvards: surname,
+                Dzimasanas_diena: birthday,
+                Reference_uz_attelu: reference,
+            }, null, 4));
+
+            var blob = new Blob([data], {
+                type: 'application/octet-stream'
+            });
+
+            url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'pieteikums.json');
+
+            var event = document.createEvent('MouseEvents');
+            event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+            link.dispatchEvent(event);
+        }
+
+        function encode(s) {
+            var out = [];
+            for (var i = 0; i < s.length; i++) {
+                out[i] = s.charCodeAt(i);
+            }
+            return new Uint8Array(out);
+        }
+    </script>
+
+</body>
